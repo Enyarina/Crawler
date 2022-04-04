@@ -34,12 +34,11 @@ public class TaskController {
     }
 
     public Document getUrl(String url) {
-        //String url = server + "/news/" + newsId;
         int code = 0;
         boolean bStop = false;
         Document doc = null;
         for (int iTry = 0; iTry < retryCount && !bStop; iTry++) {
-            log.info("getting page from url " + url);
+            log.info("Получение страницы по адресу: " + url);
             RequestConfig requestConfig = RequestConfig.custom()
                     .setSocketTimeout(metadataTimeout)
                     .setConnectTimeout(metadataTimeout)
@@ -102,27 +101,24 @@ public class TaskController {
         Document ndoc = getUrl(link);
         String text = "";
         if (ndoc != null) {
-            // Текст публикации
-            Elements newsDoc = ndoc.getElementsByClass("content content--full ");
-            log.info("Text: " + newsDoc.text()); //  Уточнить: Иногда бывает реклама на странице. Не всегда!
+            // The text of the publication
+            String textPublication = ndoc.select("div.content-box").text();
+            log.info("Текст публикации: " + textPublication);
 
-            // Заголовок публикации
-            Element header_service = ndoc.select("h1.content-title").first();
-            String header = header_service.text();
-            log.info("Header: " + header);
+            // The title of the publication
+            String header = ndoc.select("title").first().text();
+            log.info("Заголовок: " + header);
 
-            Element head_service = ndoc.select("div.content-header__info").first(); // Шапка статьи, в которой содержится: время публикации и автор
+            // The time of the publication
+            String timePublication = ndoc.select("meta[property=article:published_time]").first().attr("content");
+            log.info("Время публикации: " + timePublication);
 
-            // Время публикации
-            String time = head_service.child(2).child(1).child(0).attr("title");
-            log.info("Time: " + time);
+            // Author of the publication
+            String authorPublication = ndoc.select("meta[name=twitter:data1]").first().attr("content");
+            log.info("Автор публикации: " + authorPublication);
 
-            // Автор публикации
-            String author = head_service.child(1).child(0).text();
-            log.info("Author: " + author);
-
-            // Ссылка на страницу с публикацией
-            log.info("URL: " + link);
+            // Link to the page
+            log.info("Ссылка на страницу: " + link);
         }
         return text;
     }

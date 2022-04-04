@@ -9,23 +9,25 @@ import org.jsoup.select.Elements;
 public class Main {
     private static Logger log = LogManager.getLogger();
     private static TaskController taskController;
-    private static String site = "https://vc.ru/popular";
+    private static String site = "https://spmiyaki.ru/";
 
     static public void ParseNews(Document doc) {
-        Elements news = doc.getElementsByClass("feed__item");
-        for (Element element: news) {
+        Elements news = doc.getElementsByClass("theiaStickySidebar").select("div[class*=news_loop_img]");
+        for (Element element : news) {
             try {
-                Element etitle =element.child(0).child(1).child(1);
-                String link = etitle.attr("href");
-//                log.info("Header: " + etitle.text());
+                Element eTitle = element.child(0);
+                String link = eTitle.attr("href");
                 String text = taskController.GetPage(link);
                 log.info(text);
+
             } catch (Exception e) {
                 log.error(e);
             }
         }
-        return ;
+
+        return;
     }
+
     public static void main(String[] args) {
         taskController = new TaskController(site);
         Document doc = taskController.getUrl(site);
